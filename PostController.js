@@ -1,10 +1,10 @@
 import Post from "./Post.js";
+import PostService from "./PostService.js"
 
 class PostController {
   async create(req, res) {
     try {
-      const {username, title, content, img} = req.body;
-      const post = await Post.create({username, title, content, img});
+      const post = await PostService.create(req.body);
       res.status(200).json(post);
     } catch (e) {
       console.log(e)
@@ -14,7 +14,7 @@ class PostController {
 
   async getAll(req, res) {
     try {
-      const posts = await Post.find()
+      const posts = await PostService.getAll();
       return res.status(200).json(posts);
     } catch (e) {
       res.status(500).send({error: e});
@@ -23,10 +23,8 @@ class PostController {
 
   async getOne(req, res) {
     try {
-      const post = await Post.findById(req.params.id)
-      if(!req.params.id){
-        return res.status(404).send({error: "Not Found Id"});
-      }
+      const post = await PostService.getOne(req.params.id);
+
       return res.status(200).json(post);
     } catch (e) {
       res.status(500).send({error: e});
@@ -36,25 +34,20 @@ class PostController {
   async update(req, res) {
     try {
       const postData = req.body;
-      if (!postData._id) {
-        return res.status(404).send({ error: "Post not found" });
-      }
-      const updatePost = await Post.findByIdAndUpdate(postData._id, postData, { new: true });
+
+      const updatePost = await PostService.update(postData);
       return res.status(200).json(updatePost);
     } catch (e) {
-      res.status(500).send({ error: e.message });
+      res.status(500).send({error: e.message});
     }
   }
 
 
   async delete(req, res) {
     try {
-    const {id} = req.params;
-    if (!id){
-      return res.status(400).send({ error: "Post not found" });
-    }
-    const post = await Post.findByIdAndDelete(id);
-    return res.status(200).json(post);
+      const {id} = req.params;
+      const post = await PostService.delete(id);
+      return res.status(200).json(post);
     } catch (e) {
       res.status(500).send({error: e});
     }
